@@ -177,7 +177,7 @@ Precision: 0.5972
 Recall   : 0.0862
 F1       : 0.1507
 ROC-AUC  : 0.8012
-
+```
 Although accuracy was approximately 85%, recall was only approximately 9%.
 
 This meant that the model was missing a large proportion of customers who actually completed a booking.
@@ -202,7 +202,7 @@ Precision: 0.321
 Recall   : 0.747
 F1       : 0.449
 ROC-AUC  : 0.801
-
+```
 The model therefore identified a much larger proportion of actual booking customers, at the cost of generating more false positives.
 
 ---
