@@ -58,13 +58,14 @@ The eligibility percentage for each tier was calculated within each grouping and
 
 | Grouping | Tier 1 MAE | Tier 2 MAE | Tier 3 MAE | Average MAE |
 |---|---:|---:|---:|---:|
-| Arrival Region | 0.003651 | 0.020410 | 0.061061 | 0.028374 |
-| Haul + Arrival Region | 0.003651 | 0.020410 | 0.061061 | 0.028374 |
-| Haul | 0.003651 | 0.020412 | 0.061066 | 0.028376 |
-| Haul + Time of Day | 0.003648 | 0.020453 | 0.061160 | 0.028420 |
-| Haul + Arrival Region + Time of Day | 0.003651 | 0.020459 | 0.061197 | 0.028436 |
-| Arrival Region + Time of Day | 0.003651 | 0.020459 | 0.061197 | 0.028436 |
-| Time of Day | 0.003657 | 0.021613 | 0.066495 | 0.030588 |
+| Arrival Region + Time of Day | 0.363 | 2.041 | 6.085 | 2.829 |
+| Haul + Arrival Region + Time of Day | 0.363 | 2.041 | 6.085 | 2.829 |
+| Haul + Time of Day | 0.363 | 2.041 | 6.086 | 2.830 |
+| Arrival Region | 0.363 | 2.040 | 6.087 | 2.830 |
+| Haul + Arrival Region | 0.363 | 2.040 | 6.087 | 2.830 |
+| Haul | 0.363 | 2.041 | 6.088 | 2.831 |
+| Time of Day | 0.366 | 2.144 | 6.588 | 3.033 |
+
 
 ### Feature / Grouping Decisions
 
@@ -83,7 +84,11 @@ The final approach therefore focused on **simple, scalable categories**, particu
 - Haul type
 - Arrival region
 
-This allowed the resulting lookup table to be applied to future schedules without requiring individual passenger manifests.
+Although Arrival Region + Time of Day produced the lowest MAE, the improvement over simpler haul-based groupings was negligible. Haul type was therefore selected as the primary grouping variable because it provides a simpler and more scalable classification of flights. Arrival Region and Haul were also highly overlapping in the dataset, with European flights being predominantly short-haul and other regions being long-haul. Using Haul avoids unnecessary duplication while allowing the lookup table to be applied more easily to future schedules.
+
+Suppose British Airways adds a new destination in the future. A new destination would require assigning the destination to an existing region or creating a new regional category. If a new region were created, there may be insufficient historical observations to produce a reliable lookup value. But a consistent rule based on route distance or flight duration could be used to classify the new flight as short-haul or long-haul.
+
+This approach therefore prioritises a balance between predictive accuracy, simplicity and scalability, while avoiding the need for individual passenger manifests.
 
 ### Key Findings
 
@@ -154,12 +159,10 @@ Feature engineering was also tested as part of the modelling process.
 
 ## Model Selection
 
-Several modelling approaches were considered, including:
+Two tree based modelling approaches were considered, including:
 
 - CatBoost
-- XGBoost
 - LightGBM
-- Random Forest
 
 CatBoost was selected as the final approach because of its ability to handle the categorical variables in the dataset effectively.
 
@@ -171,16 +174,15 @@ The large difference between customers who did and did not complete a booking me
 
 The initial model produced:
 
-```text
-Accuracy : 0.8546
-Precision: 0.5972
-Recall   : 0.0862
-F1       : 0.1507
-ROC-AUC  : 0.8012
-```
-Although accuracy was approximately 85%, recall was only approximately 9%.
+| Metric | Score |
+|---|---:|
+| Accuracy | 0.713 |
+| Precision | 0.314 |
+| Recall | 0.773 |
+| F1 | 0.446 |
+| ROC-AUC | 0.802 |
 
-This meant that the model was missing a large proportion of customers who actually completed a booking.
+Accuracy was approximately 71%, recall was approximately 77%.
 
 Because the business objective is to identify potential customers proactively, ***false negatives were considered particularly important.***
 
@@ -188,43 +190,46 @@ Because the business objective is to identify potential customers proactively, *
 
 ## Penalising False Negatives
 
-Class weighting was used to give greater importance to the positive class:
+Another model was tested where class weighting was used to give greater importance to the positive class:
 
 class_weights = [1, 5]
 
-This substantially increased recall.
-
 The resulting model produced:
 
-```text
-Accuracy : 0.726
-Precision: 0.321
-Recall   : 0.747
-F1       : 0.449
-ROC-AUC  : 0.801
-```
-The model therefore identified a much larger proportion of actual booking customers, at the cost of generating more false positives.
+| Metric | Score |
+|---|---:|
+| Accuracy | 0.727 |
+| Precision | 0.321 |
+| Recall | 0.736 |
+| F1 | 0.447 |
+| ROC-AUC | 0.802 |
+
+
+The model therefore identified a larger proportion of actual booking customers, at the cost of generating more false positives.
 
 ---
 
-##Threshold Testing
+## LightGBM 
 
-Different classification thresholds were also evaluated:
+LightGBM was also tested as an alternative gradient boosting approach.
 
-| Threshold | Precision | Recall | F1 |
-|---:|---:|---:|---:|
-| 0.10 | 0.180 | 0.989 | 0.305 |
-| 0.15 | 0.201 | 0.964 | 0.333 |
-| 0.20 | 0.222 | 0.937 | 0.360 |
-| 0.25 | 0.241 | 0.905 | 0.381 |
-| 0.30 | 0.258 | 0.878 | 0.399 |
-| 0.35 | 0.272 | 0.848 | 0.411 |
-| 0.40 | 0.286 | 0.818 | 0.423 |
-| 0.50 | 0.321 | 0.747 | 0.449 |
+The model achieved:
 
-The threshold demonstrates the trade-off between identifying more potential customers and reducing false positives.
+| Metric | Score |
+|---|---:|
+| Accuracy | 0.762 |
+| Precision | 0.338 |
+| Recall | 0.614 |
+| F1 | 0.436 |
+| ROC-AUC | 0.789 |
 
----
+## Model Comparison
+
+LightGBM achieved the highest accuracy and precision among the tested models, while producing fewer false positives. However, its recall was lower than both CatBoost models, meaning it identified fewer customers who ultimately completed a booking.
+
+Its ROC-AUC of 0.7888 was also lower than the approximately 0.802 achieved by CatBoost.
+
+Given the objective of proactively identifying potential customers, the higher recall and slightly stronger F1/ROC-AUC of the second CatBoost model made it the preferred final model.
 
 ## Cross-Validation
 
@@ -248,27 +253,32 @@ The model's feature importance showed a clear difference between the strongest p
 
 | Feature | Importance |
 |---|---:|
-| Booking origin | 23.17% |
-| Route | 21.36% |
-| Length of stay | 11.59% |
-| Purchase lead | 8.49% |
-| Sales channel | 7.00% |
-| Flight duration | 6.93% |
-| Flight hour | 5.10% |
-| Flight day | 4.24% |
-| Trip type | 3.22% |
-| Extra baggage | 2.78% |
-| Number of passengers | 2.37% |
-| Preferred seat | 2.12% |
-| In-flight meals | 1.62% |
+| Booking origin | 23.14% |
+| Route | 20.15% |
+| Sales channel | 6.02% |
+| Length of stay | 5.93% |
+| Stay duration interaction | 5.89% |
+| Lead-stay interaction | 4.38% |
+| Flight hour | 3.91% |
+| Flight duration | 3.90% |
+| Passenger-duration interaction | 3.75% |
+| Lead-duration interaction | 3.70% |
+| Flight day | 3.64% |
+| Purchase lead | 3.20% |
+| Purchase lead band | 2.70% |
+| Extra baggage | 2.68% |
+| Trip type | 2.31% |
+| Preferred seat | 1.95% |
+| In-flight meals | 1.67% |
+| Number of passengers | 1.09% |
 
-## Key Finding
+### Key Finding
 
-**Booking origin and route were the two dominant features**, together accounting for approximately 44.5% of total feature importance.
+**Booking origin and route were the two dominant features**, together accounting for approximately 43.3% of total feature importance. This indicates that customer origin and route were substantially more informative to the model than most individual booking preferences and flight characteristics. This does **not** mean that route and booking origin cause 44.5% of bookings. Rather, they contributed disproportionately to the model's predictive decisions within this dataset.
 
-This suggests that customer geography and travel route were substantially more informative to the model than most other individual variables.
+The feature engineered interaction variables also contributed meaningfully to the model. In particular, `stay_duration_interaction` accounted for 5.89% of importance, while `lead_stay_interaction` accounted for 4.38%. This suggests that relationships between variables may provide additional predictive information beyond the original variables considered independently.
 
-This does **not** mean that route and booking origin cause 44.5% of bookings. Rather, they contributed disproportionately to the model's predictive decisions within this dataset.
+It is important to note, once again, that feature importance indicates how much a variable contributed to the model's predictive process and does not imply that the variable causally determines whether a customer will complete a booking.
 
 ---
 
@@ -286,7 +296,7 @@ The model suggests that booking origin and route are particularly useful variabl
 
 This could support more targeted customer acquisition strategies based on geographical market and route characteristics.
 
-The class-weighted approach also aligns the model more closely with the business objective. Rather than maximising accuracy, the model prioritises identifying a larger proportion of potential customers, accepting that some customers predicted as likely buyers will not ultimately complete a booking.
+In my opinion the class-weighted approach provides the best balance between accuracy, precision, recall, and F1. 
 
 ---
 
