@@ -280,6 +280,7 @@ The feature engineered interaction variables also contributed meaningfully to th
 
 It is important to note, once again, that feature importance indicates how much a variable contributed to the model's predictive process and does not imply that the variable causally determines whether a customer will complete a booking.
 
+![Feature Importance](Task2/feature_importance.png)
 ---
 
 ##SHAP Analysis
