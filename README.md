@@ -280,12 +280,12 @@ The feature engineered interaction variables also contributed meaningfully to th
 
 It is important to note, once again, that feature importance indicates how much a variable contributed to the model's predictive process and does not imply that the variable causally determines whether a customer will complete a booking.
 
-![Feature Importance](Task2/feature_importance.png)
+![Feature Importance](./Task2/feature_importance.png)
 ---
 
 ##SHAP Analysis
 
-SHAP was used to further interpret the model and examine how individual features influenced predictions.
+SHAP was used to interpret the model further and examine how individual features influenced predictions.
 
 The SHAP analysis provides additional information beyond global feature importance by showing whether individual feature values pushed predictions towards or away from the booking-complete class.
 
@@ -328,25 +328,6 @@ Overall, the projects involved:
 
 ---
 
-## Repository Structure
-british-airways-data-analytics/
-│
-├── README.md
-│
-├── notebooks/
-│   ├── [LOUNGE_NOTEBOOK].ipynb
-│   └── [BOOKING_NOTEBOOK].ipynb
-│
-├── images/
-│   ├── [FEATURE_IMPORTANCE_IMAGE].png
-│   └── shap_summary.png
-│
-├── presentation/
-│   └── [PRESENTATION].pptx
-│
-└── [OTHER_FILES]
-
----
 
 ## Technologies
 - Python
