@@ -1,4 +1,4 @@
-# British Airways Data Analytics Simulations ✈️
+# British Airways Data Analytics Simulations 
 
 Data analytics and machine learning projects completed as part of the British Airways Forage job simulations.
 
