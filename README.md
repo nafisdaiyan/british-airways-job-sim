@@ -283,7 +283,7 @@ It is important to note, once again, that feature importance indicates how much 
 ![Feature Importance](./Task2/feature_importance.png)
 ---
 
-##SHAP Analysis
+## SHAP Analysis
 
 SHAP was used to interpret the model further and examine how individual features influenced predictions.
 
