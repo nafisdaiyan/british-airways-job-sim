@@ -350,6 +350,6 @@ This project was completed as part of the British Airways Forage job simulations
 
 ## Author
 
-Nafis Daiyan
+Syed Daiyan
 
 [LINKEDIN](https://www.linkedin.com/in/smnd/) | [PORTFOLIO](https://nafisdaiyan.github.io/)
