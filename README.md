@@ -301,15 +301,15 @@ In my opinion the class-weighted approach provides the best balance between accu
 
 ---
 
-Overall Conclusions
+## Overall Conclusions
 
 The two simulations required different approaches to solving business problems.
 
-Lounge Forecasting
+### Lounge Forecasting
 
 The main challenge was creating a grouping strategy that was both predictive and scalable. Testing multiple combinations showed that increasingly complex groupings did not provide meaningful improvements, so a simpler grouping based on haul and destination/arrival region was preferred.
 
-Customer Booking Prediction
+### Customer Booking Prediction
 
 The main challenge was the imbalance between completed and incomplete bookings. The initial model had high accuracy but very poor recall. Class weighting was therefore introduced to penalise false negatives more heavily, increasing recall from approximately 9% to 75% while maintaining an ROC-AUC of approximately 0.80.
 
